@@ -61,6 +61,9 @@ class GameForm(QMainWindow):
         qp.end()
 
     def keyPressEvent(self, e):
+        """
+        нажатие клавиш на клавиатуре
+        """
         keyCode = e.key()
         ret = False
         if keyCode == Qt.Key_Left:
@@ -86,7 +89,7 @@ class GameForm(QMainWindow):
             self.repaint()
 
     def closeEvent(self, e):
-        # Сохранить счёт в игре
+        # Сохранить рекорд в игре
         with open("bestscore.ini", "w") as f:
             f.write(str(self.bstScore))
 
@@ -140,7 +143,6 @@ class GameForm(QMainWindow):
         qp.drawRect(15, 150, 475, 475)
 
     def drawLog(self, qp):
-
         """Лого игры"""
         pen = QPen(QColor(255, 93, 29), 15)
         qp.setFont(self.lgFont)
@@ -312,7 +314,7 @@ class GameForm(QMainWindow):
         else:
             return True
 
-    def isGameOver(self):
+    def isGameOver(self) -> bool:
         """Функция, определяющая, можно ли продолжать игру"""
         copyData = copy.deepcopy(self.data)  # временно сохраняем данные игры
         curScore = self.curScore
@@ -328,7 +330,7 @@ class GameForm(QMainWindow):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    form = GameForm()
-    form.show()
-    sys.exit(app.exec_())
+    app = QApplication(sys.argv)   # Создаем  объект приложения
+    form = GameForm()   # Создание формы
+    form.show()    # показ формы
+    sys.exit(app.exec_())    # выход если exit
