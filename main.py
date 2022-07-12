@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QPushButton
 from PyQt5.QtGui import QPainter, QColor, QFont, QPen, QIcon
 from PyQt5.QtCore import Qt, QRect
 import sys
@@ -20,14 +20,31 @@ class GameForm(QMainWindow):
                        32768: (237, 207, 114), 65536: (237, 207, 114), 131072: (237, 207, 114),
                        262144: (237, 207, 114), 524288: (237, 207, 114), 1048576: (237, 207, 114)}
         self.initGameData()
-
+        self.grid
     def initUi(self):
         """Инициализация интерфейса"""
         self.setWindowTitle("2048")
         self.setWindowIcon(QIcon('2048.png'))
-        self.resize(520, 770)
-        self.setFixedSize(self.width(), self.height())
         self.initGameOpt()
+        self.grid = 0
+        msg = QMessageBox()
+        msg.setWindowTitle("Добро пожаловать")
+        msg.setWindowIcon(QIcon('2048.png'))
+        msg.setText("Выберите размер поля")
+        Button3 = msg.addButton("3X3", QMessageBox.AcceptRole)
+        Button4 = msg.addButton("4X4", QMessageBox.AcceptRole)
+        Button5 = msg.addButton("5X5", QMessageBox.AcceptRole)
+        msg.setDefaultButton(Button4)
+        msg.exec_()
+        if msg.clickedButton() == Button3:
+            self.grid = 3
+            self.resize(550, 550)
+        elif msg.clickedButton() == Button4:
+            self.grid = 4
+            self.resize(520, 670)
+        elif msg.clickedButton() == Button5:
+            self.grid = 5
+            self.resize(620, 760)
 
     def initGameOpt(self):
         """Инициализация шрифтов"""
@@ -35,9 +52,16 @@ class GameForm(QMainWindow):
         self.lgFont = QFont('Times', 38)  # логотип
         self.nmFont = QFont('SimSun', 36)  # числа на фишках
 
+
     def initGameData(self):
         """Инициализация данных игры"""
-        self.data = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+
+        if self.grid == 3:
+            self.data = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        elif self.grid == 4:
+            self.data = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        else:
+            self.data = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
         count = 0
         while count < 2:
             row = random.randint(0, len(self.data) - 1)
@@ -53,6 +77,7 @@ class GameForm(QMainWindow):
         if os.path.exists("bestscore.ini"):
             with open("bestscore.ini", "r") as f:
                 self.bstScore = int(f.read())
+
 
     def paintEvent(self, e):
         qp = QPainter()
@@ -140,7 +165,12 @@ class GameForm(QMainWindow):
         qp.setPen(col)
 
         qp.setBrush(QColor(187, 173, 160))
-        qp.drawRect(15, 150, 475, 475)
+        if self.grid == 3:
+            qp.drawRect(15, 150, 360, 360)
+        elif self.grid == 4:
+            qp.drawRect(15, 150, 475, 475)
+        elif self.grid == 5:
+            qp.drawRect(15, 150, 590, 590)
 
     def drawLog(self, qp):
         """Лого игры"""
@@ -154,18 +184,12 @@ class GameForm(QMainWindow):
         qp.setFont(self.lbFont)
         qp.setPen(QColor(119, 110, 101))
         qp.drawText(15, 134, u"Цель игры - получить фишку с максимальной степенью двойки")
-        qp.drawText(15, 660, u"Как играть:")
-        qp.drawText(45, 680, u"Используйте стрелки -> <- или клавиши WASD")
-        qp.drawText(45, 700, "для перемещения фишек.")
-        qp.drawText(45, 720, u"Фишки с одним и тем же числом при встрече")
-        qp.drawText(45, 740, u"соединяются в одну, с числом в 2 раза больше")
-        qp.drawText(45, 760, u"С каждым ходом на поле появляется новая фишка")
 
     def drawTiles(self, qp):
         """Нарисовать клетки"""
         qp.setFont(self.nmFont)
-        for row in range(4):
-            for col in range(4):
+        for row in range(self.grid):
+            for col in range(self.grid):
                 value = self.data[row][col]
                 color = self.colors[value]
 
@@ -327,6 +351,7 @@ class GameForm(QMainWindow):
         if not flag:
             self.data = copyData  # Можно двигаться дальше, восстанавливаем исходные данные
         return flag
+
 
 
 if __name__ == '__main__':
